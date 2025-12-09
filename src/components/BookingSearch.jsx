@@ -10,6 +10,7 @@ const BookingSearch = () => {
     const [endDate, setEndDate] = useState(null);
     const [guests, setGuests] = useState(2);
 
+    // New fields for booking
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
@@ -25,13 +26,30 @@ const BookingSearch = () => {
         setLoading(true);
 
         try {
-            // Insert booking into Supabase
+            // Helper to format date as YYYY-MM-DD for Supabase DATE type
+            const formatDate = (date) => {
+                if (!date) return null;
+                // Use local time to avoid timezone shifts
+                const offset = date.getTimezoneOffset();
+                const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+                return localDate.toISOString().split('T')[0];
+            };
+
+            const formattedCheckIn = formatDate(startDate);
+            const formattedCheckOut = formatDate(endDate);
+
+            console.log("Sending data to Supabase:", {
+                check_in: formattedCheckIn,
+                check_out: formattedCheckOut,
+                guests, name, email
+            });
+
             const { data, error } = await supabase
                 .from('bookings')
                 .insert([
                     {
-                        check_in: startDate,
-                        check_out: endDate,
+                        check_in: formattedCheckIn,
+                        check_out: formattedCheckOut,
                         guests: guests,
                         name: name,
                         email: email
@@ -40,8 +58,8 @@ const BookingSearch = () => {
                 .select();
 
             if (error) {
-                console.error('Supabase error:', error);
-                throw new Error("Errore nel salvataggio della prenotazione.");
+                console.error('Supabase detailed error:', error);
+                throw error; // Rethrow to catch block
             }
 
             alert(`Prenotazione confermata per il Sig./Sig.ra ${name}!\nControlla la tua email (${email}) per i dettagli.`);
@@ -54,8 +72,9 @@ const BookingSearch = () => {
             setEmail('');
 
         } catch (err) {
-            console.error(err);
-            alert("Si è verificato un errore durante la prenotazione. Riprova più tardi.");
+            console.error('Full Error Object:', err);
+            // Show detailed error in alert for debugging
+            alert(`ERRORE PRENOTAZIONE:\n${err.message || JSON.stringify(err)}\n\nDettagli: ${err.details || 'Nessun dettaglio aggiuntivo'}\nHint: ${err.hint || 'Nessun suggerimento'}`);
         } finally {
             setLoading(false);
         }
