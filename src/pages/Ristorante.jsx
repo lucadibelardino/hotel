@@ -5,7 +5,7 @@ const Ristorante = () => {
     return (
         <div style={{ paddingTop: '80px' }}>
             <div style={{ textAlign: 'center', padding: '4rem 2rem', backgroundColor: 'var(--color-bg-light)' }}>
-                <h1>Ristorante L'Ulivo</h1>
+                <h1>Ristorante Hotel Luca</h1>
                 <p>I sapori autentici della Sardegna.</p>
             </div>
 

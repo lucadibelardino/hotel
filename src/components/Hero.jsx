@@ -27,7 +27,7 @@ const Hero = () => {
                     transition={{ duration: 0.8, delay: 0.6 }}
                 >
                     <a href="#prenota" className="btn btn-primary">Prenota il tuo soggiorno</a>
-                    <a href="#scopri" className="btn btn-outline">Scopri L'Ulivo</a>
+                    <a href="#scopri" className="btn btn-outline">Scopri Hotel Luca</a>
                 </motion.div>
             </div>
         </section>

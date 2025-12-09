@@ -13,7 +13,7 @@ const Home = () => {
                 image="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
             >
                 <p>
-                    Hotel L’Ulivo è un hotel 3 stelle situato a Girasole, in Sardegna, nel cuore dell’Ogliastra.
+                    Hotel Luca è un hotel 3 stelle situato a Girasole, in Sardegna, nel cuore dell’Ogliastra.
                     La struttura si trova a soli 2 km dal mare e dal centro di Tortolì, ed è circondata da un bellissimo giardino.
                 </p>
                 <p>

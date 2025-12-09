@@ -6,10 +6,10 @@ const Footer = () => {
         <footer className="footer">
             <div className="footer-container">
                 <div className="footer-section">
-                    <h3>Hotel L'Ulivo</h3>
+                    <h3>Hotel Luca</h3>
                     <p>Località Sa Cruxi<br />08040 Girasole (OG)</p>
                     <p>Tel: +39 0782 668956</p>
-                    <p>Email: info@hotelulivo.it</p>
+                    <p>Email: info@hotelluca.it</p>
                 </div>
                 <div className="footer-section">
                     <h3>Link Rapidi</h3>
@@ -29,7 +29,7 @@ const Footer = () => {
                 </div>
             </div>
             <div className="footer-bottom">
-                <p>&copy; {new Date().getFullYear()} Hotel L'Ulivo. Replica sviluppata per scopi dimostrativi.</p>
+                <p>&copy; {new Date().getFullYear()} Hotel Luca. Replica sviluppata per scopi dimostrativi.</p>
             </div>
         </footer>
     );
