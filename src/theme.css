@@ -1,0 +1,31 @@
+:root {
+  /* Brand Colors */
+  --color-primary: #6B8E23; /* Olive Drab - Fresh Olive */
+  --color-primary-dark: #556B2F; /* Dark Olive Green */
+  --color-secondary: #F5F5DC; /* Beige */
+  --color-accent: #DAA520; /* Goldenrod - reminiscent of sun/gold */
+
+  /* Text Colors */
+  --color-text-main: #333333;
+  --color-text-light: #666666;
+  --color-text-white: #FFFFFF;
+
+  /* Backgrounds */
+  --color-bg-body: #FFFFFF;
+  --color-bg-light: #FAFAF5; /* Very light subtle olive tint */
+  
+  /* Typography */
+  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-serif: 'Playfair Display', serif; /* For headers to give hotel elegance */
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
