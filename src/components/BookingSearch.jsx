@@ -44,7 +44,9 @@ const BookingSearch = () => {
                 guests, name, email
             });
 
-            const { data, error } = await supabase
+            // Insert booking into Supabase
+            // IMPORTANT: We do NOT call .select() because RLS policies usually allow INSERT but NOT SELECT for anonymous users.
+            const { error } = await supabase
                 .from('bookings')
                 .insert([
                     {
@@ -54,8 +56,7 @@ const BookingSearch = () => {
                         name: name,
                         email: email
                     },
-                ])
-                .select();
+                ]);
 
             if (error) {
                 console.error('Supabase detailed error:', error);
