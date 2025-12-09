@@ -1,0 +1,79 @@
+.section {
+    padding: var(--spacing-xl) var(--spacing-sm);
+    overflow: hidden;
+}
+
+.section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+.section-reversed .section-container {
+    direction: rtl;
+    /* simple way to swap columns visually */
+}
+
+.section-reversed .section-content {
+    direction: ltr;
+    /* reset text direction */
+}
+
+.section-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    position: relative;
+}
+
+.section-content h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: var(--color-primary);
+    margin-top: 1rem;
+}
+
+.section-text {
+    font-size: 1.1rem;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.8;
+}
+
+.section-image img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.btn-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.btn-link:hover {
+    color: var(--color-primary-dark);
+}
+
+@media (max-width: 768px) {
+    .section-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .section-reversed .section-container {
+        direction: ltr;
+    }
+
+    /* Image on top for mobile usually looks better, or keep order */
+    .section-image {
+        order: -1;
+    }
+}
