@@ -1,0 +1,51 @@
+.navbar {
+    background-color: var(--color-bg-body);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: var(--spacing-sm) 0;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--spacing-sm);
+}
+
+.navbar-logo h1 {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.navbar-menu a {
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-menu a:hover {
+    color: var(--color-primary);
+}
+
+.btn-book {
+    background-color: var(--color-primary);
+    color: white !important;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.3s ease;
+}
+
+.btn-book:hover {
+    background-color: var(--color-primary-dark);
+}
