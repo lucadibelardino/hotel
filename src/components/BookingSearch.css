@@ -9,35 +9,44 @@
     align-items: center;
     background: white;
     border-radius: 50px;
-    /* Pill shape */
     padding: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     max-width: 850px;
     width: 100%;
-    border: 1px solid #e0e0e0;
+    border: none;
+    /* Removed border for cleaner look */
 }
 
 .search-field {
     flex: 1;
-    padding: 0 20px;
+    padding: 0 25px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    border-radius: 30px;
+    transition: background-color 0.2s;
+    height: 100%;
+    position: relative;
+}
+
+.search-field:hover {
+    background-color: #f7f7f7;
 }
 
 .search-field label {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 800;
     color: #333;
     margin-bottom: 2px;
     padding-left: 26px;
-    /* Align with input text, skipping icon space */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .input-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     color: #666;
 }
 
@@ -45,48 +54,116 @@
     color: var(--color-primary);
 }
 
-.search-field input,
-.search-field select {
+.luxury-input {
     border: none;
     background: transparent;
-    font-size: 0.9rem;
-    color: #555;
+    font-size: 1rem;
+    color: #444;
     width: 100%;
     outline: none;
-    font-family: inherit;
+    font-family: var(--font-family-sans);
     cursor: pointer;
+    font-weight: 500;
+}
+
+/* Specific select styling */
+select.luxury-input {
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .divider {
     width: 1px;
     height: 32px;
-    background-color: #dddddd;
+    background-color: #e0e0e0;
 }
 
 .search-button {
-    background-color: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     color: white;
     border: none;
     border-radius: 30px;
-    padding: 12px 24px;
+    padding: 14px 28px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 1rem;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
     margin-left: 10px;
+    box-shadow: 0 4px 15px rgba(107, 142, 35, 0.3);
 }
 
 .search-button:hover {
-    background-color: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(107, 142, 35, 0.4);
+}
+
+/* React Datepicker Customizations for Luxury Feel */
+.react-datepicker-popper {
+    z-index: 2000 !important;
+}
+
+.react-datepicker {
+    font-family: var(--font-family-sans) !important;
+    border: none !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 16px !important;
+}
+
+.react-datepicker__header {
+    background-color: white !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+    padding-top: 15px !important;
+}
+
+.react-datepicker__current-month {
+    color: var(--color-text-main) !important;
+    font-family: var(--font-family-serif) !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 10px !important;
+}
+
+.react-datepicker__day-name {
+    color: var(--color-text-light) !important;
+    font-weight: 600 !important;
+}
+
+.react-datepicker__day {
+    color: var(--color-text-main) !important;
+    width: 2rem !important;
+    line-height: 2rem !important;
+    margin: 0.2rem !important;
+}
+
+.react-datepicker__day:hover {
+    background-color: #f0f0f0 !important;
+    border-radius: 50% !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    border-radius: 50% !important;
+}
+
+.react-datepicker__day--today {
+    font-weight: bold !important;
+    color: var(--color-primary) !important;
+}
+
+.react-datepicker__triangle {
+    display: none !important;
 }
 
 @media (max-width: 768px) {
     .booking-search-bar {
         flex-direction: column;
-        border-radius: 20px;
+        border-radius: 16px;
         padding: 20px;
         gap: 15px;
     }
@@ -94,18 +171,5 @@
     .divider {
         width: 100%;
         height: 1px;
-    }
-
-    .search-field {
-        width: 100%;
-        padding: 5px 0;
-    }
-
-    .search-button {
-        width: 100%;
-        justify-content: center;
-        margin-left: 0;
-        margin-top: 10px;
-        padding: 14px;
     }
 }

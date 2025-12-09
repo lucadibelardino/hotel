@@ -6,11 +6,13 @@ import Camere from './pages/Camere'
 import Ristorante from './pages/Ristorante'
 import Servizi from './pages/Servizi'
 import Prenotazione from './pages/Prenotazione'
+import ScrollToTop from './components/ScrollToTop'
 import './App.css'
 
 function App() {
   return (
     <div className="app">
+      <ScrollToTop />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
