@@ -14,7 +14,7 @@ const Navbar = () => {
                     <li><Link to="/camere">Camere</Link></li>
                     <li><Link to="/ristorante">Ristorante</Link></li>
                     <li><Link to="/servizi">Servizi</Link></li>
-                    <li><a href="#contatti" className="btn-book">Prenota Ora</a></li>
+                    <li><Link to="/prenota" className="btn-book">Prenota Ora</Link></li>
                 </ul>
             </div>
         </nav>

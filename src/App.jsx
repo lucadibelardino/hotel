@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Camere from './pages/Camere'
 import Ristorante from './pages/Ristorante'
 import Servizi from './pages/Servizi'
+import Prenotazione from './pages/Prenotazione'
 import './App.css'
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/camere" element={<Camere />} />
         <Route path="/ristorante" element={<Ristorante />} />
         <Route path="/servizi" element={<Servizi />} />
+        <Route path="/prenota" element={<Prenotazione />} />
       </Routes>
       <Footer />
     </div>
