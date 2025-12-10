@@ -5,6 +5,29 @@ import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocess
 import { useParams, useNavigate } from 'react-router-dom';
 import { ROOMS_DATA } from '../data/rooms';
 
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div style={{ padding: 50, color: 'white' }}>
+                    <h1>Si è verificato un errore nel caricamento 3D.</h1>
+                    <pre>{this.state.error.toString()}</pre>
+                    <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', cursor: 'pointer' }}>Ricarica</button>
+                    <a href="/" style={{ color: 'white', marginLeft: 20 }}>Torna alla Home</a>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
 // --- Procedural High-Fidelity Components ---
 
 // Materials helpers
@@ -266,130 +289,132 @@ const Demo3D = () => {
     if (!roomData) return <div style={{ color: 'white' }}>Caricamento...</div>;
 
     return (
-        <div style={{ width: '100vw', height: '100vh', background: '#050505', position: 'relative' }}>
-            <Suspense fallback={<div style={{ color: 'white', paddingTop: '50vh', textAlign: 'center' }}>Caricamento Alta Definizione...</div>}>
-                <Canvas shadows camera={{ position: [0, 5, 12], fov: 40 }} gl={{ antialias: false }}>
-                    <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={50} />
-                    <OrbitControls
-                        minPolarAngle={0}
-                        maxPolarAngle={Math.PI / 2.1}
-                        maxDistance={18}
-                        minDistance={4}
-                        target={[0, 1, 0]}
-                    />
+        <ErrorBoundary>
+            <div style={{ width: '100vw', height: '100vh', background: '#050505', position: 'relative' }}>
+                <Suspense fallback={<div style={{ color: 'white', paddingTop: '50vh', textAlign: 'center' }}>Caricamento Alta Definizione...</div>}>
+                    <Canvas shadows camera={{ position: [0, 5, 12], fov: 40 }} gl={{ antialias: false }}>
+                        <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={50} />
+                        <OrbitControls
+                            minPolarAngle={0}
+                            maxPolarAngle={Math.PI / 2.1}
+                            maxDistance={18}
+                            minDistance={4}
+                            target={[0, 1, 0]}
+                        />
 
-                    {/* Accurate Lighting */}
-                    <ambientLight intensity={0.2} />
-                    <directionalLight
-                        position={[5, 10, 5]}
-                        intensity={1}
-                        castShadow
-                        shadow-mapSize={[1024, 1024]}
-                    />
+                        {/* Accurate Lighting */}
+                        <ambientLight intensity={0.2} />
+                        <directionalLight
+                            position={[5, 10, 5]}
+                            intensity={1}
+                            castShadow
+                            shadow-mapSize={[1024, 1024]}
+                        />
 
-                    {/* Add Environment for PBR reflections, but handle failure gracefully if disconnected */}
-                    <Environment preset="apartment" background={false} blur={0.8} />
+                        {/* Add Environment for PBR reflections, but handle failure gracefully if disconnected */}
+                        <Environment preset="apartment" background={false} blur={0.8} />
 
-                    <color attach="background" args={['#000']} />
+                        <color attach="background" args={['#000']} />
 
-                    <group position={[0, -1, 0]}>
-                        {roomId === 'standard' && <StandardRoom />}
-                        {roomId === 'superior' && <SuperiorRoom />}
-                        {roomId === 'suite' && <SuiteRoom />}
-                        {!['standard', 'superior', 'suite'].includes(roomId) && <StandardRoom />}
-                    </group>
+                        <group position={[0, -1, 0]}>
+                            {roomId === 'standard' && <StandardRoom />}
+                            {roomId === 'superior' && <SuperiorRoom />}
+                            {roomId === 'suite' && <SuiteRoom />}
+                            {!['standard', 'superior', 'suite'].includes(roomId) && <StandardRoom />}
+                        </group>
 
-                    <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.4} far={1} color="#000" />
+                        <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.4} far={1} color="#000" />
 
-                    {/* Post Processing for Cinematic Look */}
-                    <EffectComposer disableNormalPass>
-                        <Bloom luminanceThreshold={0.8} mipmapBlur intensity={0.8} radius={0.4} />
-                        <Vignette eskil={false} offset={0.1} darkness={1.1} />
-                        <Noise opacity={0.02} />
-                    </EffectComposer>
+                        {/* Post Processing for Cinematic Look */}
+                        <EffectComposer disableNormalPass>
+                            <Bloom luminanceThreshold={0.8} mipmapBlur intensity={0.8} radius={0.4} />
+                            <Vignette eskil={false} offset={0.1} darkness={1.1} />
+                            <Noise opacity={0.02} />
+                        </EffectComposer>
 
-                </Canvas>
-            </Suspense>
+                    </Canvas>
+                </Suspense>
 
-            {/* UI Overlay */}
-            <div style={{
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                padding: '30px',
-                background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                pointerEvents: 'none'
-            }}>
-                <div style={{ color: 'white' }}>
-                    <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 300 }}>{roomData.name}</h1>
-                    <p style={{ margin: '5px 0', opacity: 0.7, letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Interattivo 3D • Alta Fedeltà</p>
-                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                        {ROOMS_DATA.map(r => (
-                            <button
-                                key={r.id}
-                                style={{
-                                    pointerEvents: 'auto',
-                                    padding: '8px 20px',
-                                    borderRadius: '30px',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    background: r.id === roomId ? 'white' : 'rgba(0,0,0,0.5)',
-                                    color: r.id === roomId ? 'black' : 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    backdropFilter: 'blur(5px)',
-                                    transition: 'all 0.3s'
-                                }}
-                                onClick={() => navigate(`/3d/${r.id}`)}
-                            >
-                                {r.name}
-                            </button>
-                        ))}
+                {/* UI Overlay */}
+                <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    padding: '30px',
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    pointerEvents: 'none'
+                }}>
+                    <div style={{ color: 'white' }}>
+                        <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 300 }}>{roomData.name}</h1>
+                        <p style={{ margin: '5px 0', opacity: 0.7, letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Interattivo 3D • Alta Fedeltà</p>
+                        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                            {ROOMS_DATA.map(r => (
+                                <button
+                                    key={r.id}
+                                    style={{
+                                        pointerEvents: 'auto',
+                                        padding: '8px 20px',
+                                        borderRadius: '30px',
+                                        border: '1px solid rgba(255,255,255,0.3)',
+                                        background: r.id === roomId ? 'white' : 'rgba(0,0,0,0.5)',
+                                        color: r.id === roomId ? 'black' : 'white',
+                                        cursor: 'pointer',
+                                        fontSize: '0.8rem',
+                                        backdropFilter: 'blur(5px)',
+                                        transition: 'all 0.3s'
+                                    }}
+                                    onClick={() => navigate(`/3d/${r.id}`)}
+                                >
+                                    {r.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end', gap: '15px' }}>
+                        <button
+                            style={{
+                                pointerEvents: 'auto',
+                                padding: '16px 32px',
+                                backgroundColor: 'white',
+                                color: 'black',
+                                border: 'none',
+                                borderRadius: '4px',
+                                fontSize: '1rem',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                letterSpacing: '1px',
+                                textTransform: 'uppercase',
+                                boxShadow: '0 4px 20px rgba(255, 255, 255, 0.2)'
+                            }}
+                            onClick={() => navigate(`/camere?roomId=${roomId}`)}
+                        >
+                            Prenota Suite
+                        </button>
+                        <a href="/" style={{ pointerEvents: 'auto', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                            <span style={{ marginRight: '5px' }}>←</span> Torna alla Home
+                        </a>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end', gap: '15px' }}>
-                    <button
-                        style={{
-                            pointerEvents: 'auto',
-                            padding: '16px 32px',
-                            backgroundColor: 'white',
-                            color: 'black',
-                            border: 'none',
-                            borderRadius: '4px',
-                            fontSize: '1rem',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase',
-                            boxShadow: '0 4px 20px rgba(255, 255, 255, 0.2)'
-                        }}
-                        onClick={() => navigate(`/camere?roomId=${roomId}`)}
-                    >
-                        Prenota Suite
-                    </button>
-                    <a href="/" style={{ pointerEvents: 'auto', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                        <span style={{ marginRight: '5px' }}>←</span> Torna alla Home
-                    </a>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '30px',
+                    width: '100%',
+                    textAlign: 'center',
+                    color: 'white',
+                    opacity: 0.4,
+                    fontSize: '0.8rem',
+                    letterSpacing: '2px',
+                    pointerEvents: 'none'
+                }}>
+                    RUOTA • ZOOM • ESPLORA
                 </div>
             </div>
-
-            <div style={{
-                position: 'absolute',
-                bottom: '30px',
-                width: '100%',
-                textAlign: 'center',
-                color: 'white',
-                opacity: 0.4,
-                fontSize: '0.8rem',
-                letterSpacing: '2px',
-                pointerEvents: 'none'
-            }}>
-                RUOTA • ZOOM • ESPLORA
-            </div>
-        </div>
+        </ErrorBoundary>
     );
 };
 

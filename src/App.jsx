@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -25,6 +25,7 @@ function App() {
         <Route path="/prenota" element={<Prenotazione />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/3d" element={<Navigate to="/3d/standard" replace />} />
         <Route path="/3d/:roomId" element={<Demo3D />} />
       </Routes>
       <Footer />
