@@ -1,5 +1,5 @@
 .hero {
-    height: 80vh;
+    min-height: 90vh;
     /* Fallback color if image fails or before loading */
     background-color: var(--color-primary-dark);
     /* Use a placeholder gradient or a real image if available later */
