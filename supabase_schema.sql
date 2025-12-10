@@ -23,3 +23,10 @@ create policy "Allow public inserts"
 on bookings for insert
 to anon
 with check (true);
+
+-- Policy to allow authenticated users (Admins) to do EVERYTHING
+create policy "Allow authenticated all"
+on bookings for all
+to authenticated
+using (true)
+with check (true);

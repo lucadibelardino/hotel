@@ -7,6 +7,8 @@ import Ristorante from './pages/Ristorante'
 import Servizi from './pages/Servizi'
 import Prenotazione from './pages/Prenotazione'
 import ScrollToTop from './components/ScrollToTop'
+import Login from './pages/Login'
+import AdminDashboard from './pages/AdminDashboard'
 import './App.css'
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
         <Route path="/ristorante" element={<Ristorante />} />
         <Route path="/servizi" element={<Servizi />} />
         <Route path="/prenota" element={<Prenotazione />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
       <Footer />
     </div>
