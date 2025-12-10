@@ -61,10 +61,9 @@ const Demo3D = () => {
                     <ambientLight intensity={0.5} />
                     <pointLight position={[10, 10, 10]} intensity={1} />
 
+                    <color attach="background" args={['#101010']} />
                     <Room />
-
-                    <Environment preset="city" />
-                    <ContactShadows position={[0, -0.49, 0]} opacity={0.5} scale={10} blur={1.5} far={0.8} />
+                    <gridHelper args={[20, 20, 0x444444, 0x222222]} />
                 </Canvas>
             </Suspense>
 
