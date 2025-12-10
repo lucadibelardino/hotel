@@ -15,11 +15,19 @@ const BookingSearch = () => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Modal State
+    const [modal, setModal] = useState({ show: false, type: 'success', title: '', message: '' });
+
     const handleSearch = async (e) => {
         e.preventDefault();
 
         if (!startDate || !endDate || !name || !email) {
-            alert("Per favore, compila tutti i campi obbligatori (Date, Nome, Email).");
+            setModal({
+                show: true,
+                type: 'error',
+                title: 'Campi Mancanti',
+                message: "Per favore, compila tutti i campi obbligatori (Date, Nome, Email)."
+            });
             return;
         }
 
@@ -47,7 +55,6 @@ const BookingSearch = () => {
             console.log("Saving booking:", bookingData);
 
             // 1. Insert booking into Supabase
-            // Note: RLS policies allow INSERT.
             const { error: insertError } = await supabase
                 .from('bookings')
                 .insert([bookingData]);
@@ -60,7 +67,6 @@ const BookingSearch = () => {
             console.log("Booking saved. Invoking Edge Function...");
 
             // 2. Call Supabase Edge Function to send email
-            // We now expect a 200 OK response with { success: true/false } structure
             const { data: funcData, error: funcError } = await supabase.functions.invoke('send-booking-email', {
                 body: { record: bookingData }
             });
@@ -68,33 +74,53 @@ const BookingSearch = () => {
             // Handle network/invoke transport errors (real 500s or 404s that blocked execution)
             if (funcError) {
                 console.error("Invoke Error:", funcError);
-                if (funcError.code === 'not_found' || funcError.message.includes('not found') || funcError.message.includes('404')) {
-                    alert(`ATTENZIONE: La funzione 'send-booking-email' non è stata trovata!\nHai fatto il DEPLOY su Supabase?`);
-                } else {
-                    alert(`Errore di connessione alla funzione: ${funcError.message}`);
+                let errorMsg = `Connessione alla funzione email fallita: ${funcError.message}`;
+                if (funcError.code === 'not_found' || funcError.message?.includes('404')) {
+                    errorMsg = "Funzione Email non trovata (Deploy mancante?).";
                 }
+                setModal({
+                    show: true,
+                    type: 'warning',
+                    title: 'Prenotazione Salvata',
+                    message: `La prenotazione è confermata, ma l'email automatica non è partita.\n(${errorMsg})`
+                });
             }
             // Handle logical errors returned by the function (soft errors)
             else if (funcData && funcData.success === false) {
                 console.error("Function Logic Error:", funcData.error);
-                alert(`Prenotazione salvata, ma IMPOSSIBILE inviare email.\nMotivo: ${funcData.error}`);
+                setModal({
+                    show: true,
+                    type: 'warning',
+                    title: 'Prenotazione Salvata',
+                    message: `Prenotazione ok, ma invio email fallito.\nMotivo: ${funcData.error}`
+                });
             }
             // Success
             else {
                 console.log("Edge Function Success:", funcData);
-                alert(`Prenotazione confermata per ${name}!\nUn'email di conferma è stata inviata a ${email}.`);
-            }
+                setModal({
+                    show: true,
+                    type: 'success',
+                    title: 'Prenotazione Confermata!',
+                    message: `Grazie ${name}, abbiamo ricevuto la tua richiesta.\nUn'email di conferma è stata inviata a ${email}.`
+                });
 
-            // Reset form
-            setStartDate(null);
-            setEndDate(null);
-            setGuests(2);
-            setName('');
-            setEmail('');
+                // Clear success form logic
+                setStartDate(null);
+                setEndDate(null);
+                setGuests(2);
+                setName('');
+                setEmail('');
+            }
 
         } catch (err) {
             console.error('Full Error Object:', err);
-            alert(`Si è verificato un errore:\n${err.message || 'Errore sconosciuto'}`);
+            setModal({
+                show: true,
+                type: 'error',
+                title: 'Errore',
+                message: `Si è verificato un errore durante la prenotazione.\n${err.message || 'Riprova più tardi.'}`
+            });
         } finally {
             setLoading(false);
         }
@@ -180,6 +206,7 @@ const BookingSearch = () => {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
+                                autoComplete="given-name"
                             />
                         </div>
                     </div>
@@ -197,6 +224,7 @@ const BookingSearch = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                autoComplete="email"
                             />
                         </div>
                     </div>
@@ -215,6 +243,25 @@ const BookingSearch = () => {
                     </button>
                 </div>
             </form>
+
+            {/* Custom Modal */}
+            {modal.show && (
+                <div className="booking-modal-overlay" onClick={() => setModal({ ...modal, show: false })}>
+                    <div className="booking-modal" onClick={e => e.stopPropagation()}>
+                        <div className={`modal-header ${modal.type}`}>
+                            <h3>{modal.title}</h3>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ whiteSpace: 'pre-line' }}>{modal.message}</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="confirm-btn" onClick={() => setModal({ ...modal, show: false })}>
+                                Chiudi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
