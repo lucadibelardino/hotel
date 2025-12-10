@@ -6,7 +6,11 @@ create table if not exists bookings (
   email text not null,
   check_in date not null,
   check_out date not null,
-  guests integer default 2
+  guests integer default 2,
+  room_type text,
+  total_price numeric,
+  extras jsonb,
+  status text default 'pending'
 );
 
 -- Enable Row Level Security (RLS)

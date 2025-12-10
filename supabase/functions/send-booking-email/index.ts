@@ -4,15 +4,35 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import nodemailer from "npm:nodemailer@6.9.7";
 
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Authorized domains (Production + Localhost for testing)
+const allowedOrigins = [
+    "https://lucadibelardino.github.io",
+    "http://localhost:5173",
+    "http://localhost:3000"
+];
+
 serve(async (req) => {
+    const origin = req.headers.get('Origin');
+    const isAllowed = origin && allowedOrigins.includes(origin);
+
+    // Set CORS Origin dynamically if allowed, otherwise null (blocks access)
+    // For tools/curl that send no origin, we can block or allow based on strictness. 
+    // Here we allow if allowed or default strict (but for simplicity/demo we might fallback to * if needed, but let's be strict for security)
+    const accessControlAllowOrigin = isAllowed ? origin : "null";
+
+    const headers = {
+        ...corsHeaders,
+        'Access-Control-Allow-Origin': accessControlAllowOrigin
+    };
+
     // Handle CORS preflight request
     if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders });
+        return new Response('ok', { headers });
     }
+
 
     try {
         let body;

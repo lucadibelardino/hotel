@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import './Hero.css';
+import BookingSearch from './BookingSearch';
 
 const Hero = () => {
     return (
@@ -20,14 +21,14 @@ const Hero = () => {
                 >
                     Vivi l'autentica ospitalità sarda a pochi passi dal mare.
                 </motion.p>
+
                 <motion.div
-                    className="hero-actions"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
+                    style={{ width: '100%', marginTop: '2rem' }}
                 >
-                    <a href="#prenota" className="btn btn-primary">Prenota il tuo soggiorno</a>
-                    <a href="#scopri" className="btn btn-outline">Scopri Hotel Luca</a>
+                    <BookingSearch />
                 </motion.div>
             </div>
         </section>
