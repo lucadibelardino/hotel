@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Text, Float, Environment, ContactShadows, useTexture } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, Text, Float, Environment, ContactShadows } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ROOMS_DATA } from '../data/rooms';
