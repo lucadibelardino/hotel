@@ -1,152 +1,252 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Text, Float } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, Text, Float, Environment, ContactShadows, useTexture } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ROOMS_DATA } from '../data/rooms';
 
-// --- Reusable 3D Components ---
+// --- Procedural High-Fidelity Components ---
 
-const Wall = ({ position, rotation, args, color }) => (
-    <mesh position={position} rotation={rotation}>
-        <boxGeometry args={args} />
-        <meshStandardMaterial color={color} roughness={0.8} />
-    </mesh>
-);
+// Materials helpers
+const WoodMaterial = ({ color = "#8b5a2b" }) => <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />;
+const MetalMaterial = ({ color = "#444" }) => <meshStandardMaterial color={color} roughness={0.2} metalness={0.8} />;
+const FabricMaterial = ({ color = "#fff" }) => <meshStandardMaterial color={color} roughness={0.9} metalness={0.05} />;
+const GlassMaterial = () => <meshStandardMaterial color="#88ccff" roughness={0.1} metalness={0.9} transparent opacity={0.3} />;
 
-const Floor = ({ args, color }) => (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-        <planeGeometry args={args} />
-        <meshStandardMaterial color={color} roughness={0.5} />
-    </mesh>
-);
+const DetailedBed = ({ position, rotation, primaryColor = "#1e3a8a", beddingColor = "#ffffff" }) => (
+    <group position={position} rotation={rotation}>
+        {/* Legs */}
+        {[[-1.4, 0.1, -1.9], [1.4, 0.1, -1.9], [-1.4, 0.1, 1.9], [1.4, 0.1, 1.9]].map((pos, i) => (
+            <mesh key={i} position={pos}>
+                <cylinderGeometry args={[0.05, 0.04, 0.2]} />
+                <WoodMaterial color="#3f2e18" />
+            </mesh>
+        ))}
 
-const Bed = ({ position, color = "#854d0e" }) => (
-    <group position={position}>
-        {/* Base */}
-        <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[3, 1, 4]} />
-            <meshStandardMaterial color={color} />
+        {/* Frame */}
+        <mesh position={[0, 0.35, 0]}>
+            <boxGeometry args={[3, 0.4, 4.1]} />
+            <WoodMaterial color="#554433" />
         </mesh>
+
+        {/* Headboard */}
+        <mesh position={[0, 1.2, -2.1]}>
+            <boxGeometry args={[3.2, 1.5, 0.2]} />
+            <FabricMaterial color={primaryColor} />
+        </mesh>
+
         {/* Mattress */}
         <mesh position={[0, 0.7, 0]}>
-            <boxGeometry args={[2.8, 0.4, 3.8]} />
-            <meshStandardMaterial color="white" />
+            <boxGeometry args={[2.9, 0.35, 3.9]} />
+            <FabricMaterial color="#f8fafc" />
         </mesh>
-        {/* Pillows */}
-        <mesh position={[-0.8, 1, -1.5]} rotation={[0.2, 0, 0]}>
-            <boxGeometry args={[1, 0.3, 0.6]} />
-            <meshStandardMaterial color="#e0f2fe" />
+
+        {/* Duvet / Blanket */}
+        <mesh position={[0, 0.75, 0.5]}>
+            <boxGeometry args={[3.0, 0.36, 2.8]} />
+            <FabricMaterial color={beddingColor} />
         </mesh>
-        <mesh position={[0.8, 1, -1.5]} rotation={[0.2, 0, 0]}>
-            <boxGeometry args={[1, 0.3, 0.6]} />
-            <meshStandardMaterial color="#e0f2fe" />
-        </mesh>
-        {/* Blanket */}
-        <mesh position={[0, 0.75, 1]} rotation={[0.1, 0, 0]}>
-            <boxGeometry args={[2.9, 0.1, 1.8]} />
-            <meshStandardMaterial color={color} />
+
+        {/* Pillows - Detailed */}
+        {[[-0.8, 0.95, -1.6], [0.8, 0.95, -1.6]].map((pos, i) => (
+            <mesh key={i} position={pos} rotation={[0.4, 0, 0]}>
+                <boxGeometry args={[1, 0.2, 0.5]} />
+                <meshStandardMaterial color="#fff" roughness={1} />
+            </mesh>
+        ))}
+
+        {/* Decorative Pillows */}
+        <mesh position={[0, 0.95, -1.4]} rotation={[0.5, 0, 0]}>
+            <boxGeometry args={[0.6, 0.2, 0.4]} />
+            <FabricMaterial color={primaryColor} />
         </mesh>
     </group>
 );
 
-const Lamp = ({ position }) => (
+const Nightstand = ({ position }) => (
     <group position={position}>
-        <mesh position={[0, 0, 0]}>
-            <cylinderGeometry args={[0.1, 0.2, 1.5]} />
-            <meshStandardMaterial color="#333" />
+        <mesh position={[0, 0.3, 0]}>
+            <boxGeometry args={[0.6, 0.6, 0.6]} />
+            <WoodMaterial />
         </mesh>
-        <mesh position={[0, 1, 0]}>
-            <coneGeometry args={[0.5, 0.5, 0]} />
-            <meshStandardMaterial color="#fef3c7" emissive="#fef3c7" emissiveIntensity={0.5} />
+        <mesh position={[0, 0.3, 0.31]}> {/* Drawer Front */}
+            <boxGeometry args={[0.5, 0.2, 0.02]} />
+            <WoodMaterial color="#6b4620" />
         </mesh>
-        <pointLight position={[0, 0.5, 0]} intensity={0.5} color="#fff7ed" distance={3} />
     </group>
 );
 
-const Window = ({ position, rotation }) => (
-    <mesh position={position} rotation={rotation}>
-        <boxGeometry args={[2, 3, 0.1]} />
-        <meshStandardMaterial color="#bae6fd" transparent opacity={0.6} metalness={0.9} />
-    </mesh>
+const DetailedLamp = ({ position }) => (
+    <group position={position}>
+        <mesh position={[0, 0.02, 0]}> {/* Base */}
+            <cylinderGeometry args={[0.1, 0.12, 0.04]} />
+            <MetalMaterial />
+        </mesh>
+        <mesh position={[0, 0.3, 0]}> {/* Stem */}
+            <cylinderGeometry args={[0.02, 0.02, 0.6]} />
+            <MetalMaterial />
+        </mesh>
+        <mesh position={[0, 0.7, 0]}> {/* Shade */}
+            <cylinderGeometry args={[0.2, 0.3, 0.4, 32, 1, true]} />
+            <meshStandardMaterial color="#fffbeb" emissive="#ffedd5" emissiveIntensity={0.6} side={2} transparent opacity={0.9} />
+        </mesh>
+        <pointLight position={[0, 0.6, 0]} intensity={2} distance={3} color="#ffedd5" />
+    </group>
 );
 
-const Rug = ({ position, color }) => (
-    <mesh position={position} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[2, 32]} />
-        <meshStandardMaterial color={color} />
-    </mesh>
+const Sofa = ({ position, color = "#334155" }) => (
+    <group position={position}>
+        <mesh position={[0, 0.25, 0]}> {/* Seat */}
+            <boxGeometry args={[2.2, 0.4, 0.8]} />
+            <FabricMaterial color={color} />
+        </mesh>
+        <mesh position={[0, 0.6, -0.35]}> {/* Back */}
+            <boxGeometry args={[2.2, 0.8, 0.2]} />
+            <FabricMaterial color={color} />
+        </mesh>
+        <mesh position={[-1.2, 0.4, 0]}> {/* Arm Left */}
+            <boxGeometry args={[0.3, 0.6, 0.8]} />
+            <FabricMaterial color={color} />
+        </mesh>
+        <mesh position={[1.2, 0.4, 0]}> {/* Arm Right */}
+            <boxGeometry args={[0.3, 0.6, 0.8]} />
+            <FabricMaterial color={color} />
+        </mesh>
+    </group>
 );
 
-// --- Room Layouts ---
+const CoffeeTable = ({ position }) => (
+    <group position={position}>
+        <mesh position={[0, 0.2, 0]}>
+            <cylinderGeometry args={[0.6, 0.6, 0.05, 32]} />
+            <GlassMaterial />
+        </mesh>
+        <mesh position={[0, 0.1, 0]}>
+            <cylinderGeometry args={[0.05, 0.05, 0.2]} />
+            <MetalMaterial />
+        </mesh>
+    </group>
+);
+
+const WindowFrame = ({ position, width = 2, height = 3 }) => (
+    <group position={position}>
+        <mesh>
+            <planeGeometry args={[width, height]} />
+            <meshStandardMaterial color="#a5f3fc" emissive="#a5f3fc" emissiveIntensity={0.5} transparent opacity={0.3} />
+        </mesh>
+        {/* Frame lines */}
+        <mesh position={[0, 0, 0.01]}>
+            <boxGeometry args={[width, 0.1, 0.05]} />
+            <WoodMaterial color="#fff" />
+        </mesh>
+        <mesh position={[0, 0, 0.01]}>
+            <boxGeometry args={[0.1, height, 0.05]} />
+            <WoodMaterial color="#fff" />
+        </mesh>
+    </group>
+);
+
+// --- Room Types ---
 
 const StandardRoom = () => (
     <group>
-        <Floor args={[10, 10]} color="#d6d3d1" /> {/* Stone floor */}
-        <Wall position={[0, 2, -5]} args={[10, 5, 0.2]} color="#e5e5e5" /> {/* Back */}
-        <Wall position={[-5, 2, 0]} rotation={[0, Math.PI / 2, 0]} args={[10, 5, 0.2]} color="#d4d4d4" /> {/* Left */}
-        <Wall position={[5, 2, 0]} rotation={[0, Math.PI / 2, 0]} args={[10, 5, 0.2]} color="#d4d4d4" /> {/* Right */}
+        {/* Room Shell */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+            <planeGeometry args={[12, 12]} />
+            <meshStandardMaterial color="#e5e5e5" />
+        </mesh>
+        <mesh position={[0, 2.5, -4]} receivesShadow>
+            <boxGeometry args={[12, 5, 0.2]} />
+            <meshStandardMaterial color="#f3f4f6" />
+        </mesh>
+        <mesh position={[-4, 2.5, 0]} rotation={[0, Math.PI / 2, 0]} receivesShadow>
+            <boxGeometry args={[12, 5, 0.2]} />
+            <meshStandardMaterial color="#e5e7eb" />
+        </mesh>
 
-        <Bed position={[0, 0, -2]} color="#57534e" />
-        <Lamp position={[-2, 0, -4]} />
-        <Lamp position={[2, 0, -4]} />
-        <Window position={[0, 2, -4.9]} />
+        <DetailedBed position={[0, 0, -2]} primaryColor="#4b5563" beddingColor="#f3f4f6" />
+
+        <Nightstand position={[-2, 0, -3.5]} />
+        <DetailedLamp position={[-2, 0.6, -3.5]} />
+
+        <Nightstand position={[2, 0, -3.5]} />
+        <DetailedLamp position={[2, 0.6, -3.5]} />
+
+        <WindowFrame position={[4, 2, -1]} width={3} height={2.5} />
     </group>
 );
 
 const SuperiorRoom = () => (
     <group>
-        <Floor args={[12, 12]} color="#a8a29e" /> {/* Wood floor tone */}
-        <Wall position={[0, 2, -6]} args={[12, 5, 0.2]} color="#f0f9ff" />
-        <Wall position={[-6, 2, 0]} rotation={[0, Math.PI / 2, 0]} args={[12, 5, 0.2]} color="#e0f2fe" />
-        <Wall position={[6, 2, 0]} rotation={[0, Math.PI / 2, 0]} args={[12, 5, 0.2]} color="#e0f2fe" />
-
-        <Bed position={[-2, 0, -2]} color="#0369a1" /> {/* Blue theme */}
-        <Rug position={[-2, -0.49, 1]} color="#bfdbfe" />
-
-        {/* Seating Area */}
-        <mesh position={[3, 0, 0]} rotation={[0, -0.5, 0]}>
-            <boxGeometry args={[2, 1, 2]} />
-            <meshStandardMaterial color="#ea580c" />
+        {/* Parquet Floor */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+            <planeGeometry args={[14, 14]} />
+            <meshStandardMaterial color="#854d0e" roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 2.5, -5]} receivesShadow>
+            <boxGeometry args={[14, 5, 0.2]} />
+            <meshStandardMaterial color="#ecfeff" />
         </mesh>
 
-        <Lamp position={[-4, 0, -5]} />
-        <Window position={[0, 2, -5.9]} />
-        <Window position={[3, 2, -5.9]} />
+        <DetailedBed position={[-2, 0, -2.5]} primaryColor="#0e7490" beddingColor="#cffafe" />
+
+        <Nightstand position={[-4, 0, -4]} />
+        <DetailedLamp position={[-4, 0.6, -4]} />
+
+        {/* Sitting Corner */}
+        <Sofa position={[3, 0, -1]} color="#f97316" />
+        <CoffeeTable position={[3, 0, 1]} />
+
+        <WindowFrame position={[0, 2.5, -4.9]} width={2} height={3} />
+        <WindowFrame position={[3, 2.5, -4.9]} width={2} height={3} />
+
+        {/* Rug */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[3, 0.01, 1]}>
+            <circleGeometry args={[1.5, 32]} />
+            <FabricMaterial color="#ffedd5" />
+        </mesh>
     </group>
 );
 
 const SuiteRoom = () => (
     <group>
-        <Floor args={[15, 12]} color="#78716c" /> {/* Dark wood */}
-        <Wall position={[0, 2, -6]} args={[15, 5, 0.2]} color="#fff1f2" /> {/* Warm/Pinkish */}
-        <Wall position={[-7.5, 2, 0]} rotation={[0, Math.PI / 2, 0]} args={[12, 5, 0.2]} color="#ffe4e6" />
+        {/* Dark Elegance Floor */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+            <planeGeometry args={[20, 20]} />
+            <meshStandardMaterial color="#1c1917" roughness={0.3} metalness={0.2} />
+        </mesh>
 
-        {/* Divider Wall */}
-        <Wall position={[1, 2, -2]} rotation={[0, Math.PI / 2, 0]} args={[6, 5, 0.2]} color="#fecdd3" />
+        {/* Feature Wall */}
+        <mesh position={[0, 2.5, -6]} receivesShadow>
+            <boxGeometry args={[20, 5, 0.2]} />
+            <meshStandardMaterial color="#4c0519" />
+        </mesh>
 
-        {/* Bedroom Area */}
-        <Bed position={[-4, 0, -3]} color="#be123c" /> {/* Red/Luxury */}
-        <Rug position={[-4, -0.49, 0]} color="#fecdd3" />
-        <Lamp position={[-6, 0, -5]} />
+        <DetailedBed position={[-4, 0, -3]} primaryColor="#be123c" beddingColor="#fff1f2" />
 
-        {/* Living Area */}
+        {/* Huge Living Area */}
         <group position={[4, 0, -1]}>
-            <mesh position={[0, 0, 0]}> {/* Sofa */}
-                <boxGeometry args={[3, 1, 1.5]} />
-                <meshStandardMaterial color="#1e293b" />
-            </mesh>
-            <mesh position={[0, 0.5, 2]}> {/* Table */}
-                <boxGeometry args={[2, 0.5, 1]} />
-                <meshStandardMaterial color="#475569" />
-            </mesh>
+            <Sofa position={[0, 0, 0]} color="#0f172a" />
+            <Sofa position={[2.5, 0, 1]} rotation={[0, -Math.PI / 2, 0]} color="#0f172a" />
+            <CoffeeTable position={[1, 0, 1]} />
         </group>
 
-        <Window position={[-4, 2, -5.9]} />
-        <Window position={[4, 2, -5.9]} />
+        {/* Chandeliers (Abstract) */}
+        <pointLight position={[-4, 4, -3]} intensity={1} color="#fecdd3" distance={8} />
+        <pointLight position={[4, 4, 1]} intensity={1} color="#fff" distance={8} />
 
-        <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5} position={[4, 2, 2]}>
-            <Text fontSize={0.5} color="#be123c">
-                VISTA MARE
+        <WindowFrame position={[-6, 2.5, -2]} width={0.1} height={4} />
+
+        <Float speed={2} rotationIntensity={0.1} floatIntensity={0.5} position={[0, 3, 0]}>
+            <Text
+                fontSize={0.4}
+                color="#f43f5e"
+                maxWidth={2}
+                lineHeight={1}
+                letterSpacing={0.02}
+                textAlign="center"
+            >
+                VISTA PANORAMICA
             </Text>
         </Float>
     </group>
@@ -159,7 +259,6 @@ const Demo3D = () => {
     const [roomData, setRoomData] = useState(null);
 
     useEffect(() => {
-        // Default to standard if no ID or invalid
         const r = ROOMS_DATA.find(r => r.id === roomId) || ROOMS_DATA[0];
         setRoomData(r);
     }, [roomId]);
@@ -168,30 +267,47 @@ const Demo3D = () => {
 
     return (
         <div style={{ width: '100vw', height: '100vh', background: '#050505', position: 'relative' }}>
-            <Suspense fallback={<div style={{ color: 'white', paddingTop: '50vh', textAlign: 'center' }}>Caricamento Stanza 3D...</div>}>
-                <Canvas shadows camera={{ position: [0, 6, 12], fov: 50 }}>
-                    <PerspectiveCamera makeDefault position={[0, 8, 12]} fov={45} />
+            <Suspense fallback={<div style={{ color: 'white', paddingTop: '50vh', textAlign: 'center' }}>Caricamento Alta Definizione...</div>}>
+                <Canvas shadows camera={{ position: [0, 5, 12], fov: 40 }} gl={{ antialias: false }}>
+                    <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={50} />
                     <OrbitControls
                         minPolarAngle={0}
                         maxPolarAngle={Math.PI / 2.1}
-                        maxDistance={20}
-                        minDistance={5}
+                        maxDistance={18}
+                        minDistance={4}
+                        target={[0, 1, 0]}
                     />
 
-                    <ambientLight intensity={0.4} />
-                    <pointLight position={[10, 10, 10]} intensity={0.8} castShadow />
-                    <pointLight position={[-10, 10, -5]} intensity={0.5} color="#e0f2fe" />
+                    {/* Accurate Lighting */}
+                    <ambientLight intensity={0.2} />
+                    <directionalLight
+                        position={[5, 10, 5]}
+                        intensity={1}
+                        castShadow
+                        shadow-mapSize={[1024, 1024]}
+                    />
 
-                    <color attach="background" args={['#050505']} />
+                    {/* Add Environment for PBR reflections, but handle failure gracefully if disconnected */}
+                    <Environment preset="apartment" background={false} blur={0.8} />
 
-                    {/* Render specific room type */}
-                    {roomId === 'standard' && <StandardRoom />}
-                    {roomId === 'superior' && <SuperiorRoom />}
-                    {roomId === 'suite' && <SuiteRoom />}
-                    {/* Default fallback */}
-                    {!['standard', 'superior', 'suite'].includes(roomId) && <StandardRoom />}
+                    <color attach="background" args={['#000']} />
 
-                    <gridHelper args={[40, 40, 0x222222, 0x111111]} position={[0, -0.51, 0]} />
+                    <group position={[0, -1, 0]}>
+                        {roomId === 'standard' && <StandardRoom />}
+                        {roomId === 'superior' && <SuperiorRoom />}
+                        {roomId === 'suite' && <SuiteRoom />}
+                        {!['standard', 'superior', 'suite'].includes(roomId) && <StandardRoom />}
+                    </group>
+
+                    <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.4} far={1} color="#000" />
+
+                    {/* Post Processing for Cinematic Look */}
+                    <EffectComposer disableNormalPass>
+                        <Bloom luminanceThreshold={0.8} mipmapBlur intensity={0.8} radius={0.4} />
+                        <Vignette eskil={false} offset={0.1} darkness={1.1} />
+                        <Noise opacity={0.02} />
+                    </EffectComposer>
+
                 </Canvas>
             </Suspense>
 
@@ -201,59 +317,62 @@ const Demo3D = () => {
                 top: '0',
                 left: '0',
                 width: '100%',
-                padding: '20px',
+                padding: '30px',
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'flex-start',
                 pointerEvents: 'none'
             }}>
-                <div style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
-                    <h1 style={{ margin: 0, fontSize: '2rem' }}>{roomData.name}</h1>
-                    <p style={{ margin: '5px 0', opacity: 0.8 }}>Esplorazione Interattiva 3D</p>
-                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                <div style={{ color: 'white' }}>
+                    <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 300 }}>{roomData.name}</h1>
+                    <p style={{ margin: '5px 0', opacity: 0.7, letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Interattivo 3D • Alta Fedeltà</p>
+                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
                         {ROOMS_DATA.map(r => (
                             <button
                                 key={r.id}
                                 style={{
                                     pointerEvents: 'auto',
-                                    padding: '8px 16px',
-                                    borderRadius: '20px',
-                                    border: '1px solid white',
-                                    background: r.id === roomId ? 'white' : 'transparent',
+                                    padding: '8px 20px',
+                                    borderRadius: '30px',
+                                    border: '1px solid rgba(255,255,255,0.3)',
+                                    background: r.id === roomId ? 'white' : 'rgba(0,0,0,0.5)',
                                     color: r.id === roomId ? 'black' : 'white',
                                     cursor: 'pointer',
-                                    fontSize: '0.9rem'
+                                    fontSize: '0.8rem',
+                                    backdropFilter: 'blur(5px)',
+                                    transition: 'all 0.3s'
                                 }}
                                 onClick={() => navigate(`/3d/${r.id}`)}
                             >
-                                {r.name.split(' ')[1]} {/* Show just 'Doppia', 'Superior', 'Suite' approx */}
+                                {r.name}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end', gap: '10px' }}>
-                    <a href="/" style={{ pointerEvents: 'auto', color: 'white', textDecoration: 'none', fontSize: '0.9rem', opacity: 0.7, borderBottom: '1px solid white' }}>
-                        Torna alla Home
-                    </a>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end', gap: '15px' }}>
                     <button
                         style={{
                             pointerEvents: 'auto',
-                            padding: '12px 24px',
-                            backgroundColor: '#2563eb', // Blue primary
-                            color: 'white',
+                            padding: '16px 32px',
+                            backgroundColor: 'white',
+                            color: 'black',
                             border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '1.1rem',
+                            borderRadius: '4px',
+                            fontSize: '1rem',
                             fontWeight: 'bold',
                             cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                            letterSpacing: '1px',
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 20px rgba(255, 255, 255, 0.2)'
                         }}
-                        onClick={() => navigate(`/camere?roomId=${roomId}`)} // Go to booking with this room selected
+                        onClick={() => navigate(`/camere?roomId=${roomId}`)}
                     >
-                        Prenota da €{roomData.basePrice}
+                        Prenota Suite
                     </button>
-
+                    <a href="/" style={{ pointerEvents: 'auto', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                        <span style={{ marginRight: '5px' }}>←</span> Torna alla Home
+                    </a>
                 </div>
             </div>
 
@@ -263,11 +382,12 @@ const Demo3D = () => {
                 width: '100%',
                 textAlign: 'center',
                 color: 'white',
-                opacity: 0.5,
-                fontSize: '0.9rem',
+                opacity: 0.4,
+                fontSize: '0.8rem',
+                letterSpacing: '2px',
                 pointerEvents: 'none'
             }}>
-                Ruota per esplorare • Scorri per zoomare
+                RUOTA • ZOOM • ESPLORA
             </div>
         </div>
     );
