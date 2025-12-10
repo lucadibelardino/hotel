@@ -66,7 +66,11 @@ const BookingSearch = () => {
 
             if (funcError) {
                 console.error('Edge Function Error:', funcError);
-                alert(`Prenotazione salvata con successo, ma l'email di conferma non è partita. (Errore: ${funcError.message})`);
+                if (funcError.code === 'not_found' || funcError.message.includes('not found') || funcError.message.includes('404')) {
+                    alert(`ATTENZIONE: La funzione 'send-booking-email' non è stata trovata su Supabase!\n\nHai ricordato di fare il DEPLOY dalla Dashboard di Supabase?\n\nLa prenotazione è stata comunque salvata.`);
+                } else {
+                    alert(`Prenotazione salvata, ma errore invio email: ${funcError.message}\n(Controlla i log su Supabase)`);
+                }
             } else {
                 console.log("Edge Function Success:", funcData);
                 alert(`Prenotazione confermata per ${name}!\nUn'email di conferma è stata inviata a ${email}.`);
