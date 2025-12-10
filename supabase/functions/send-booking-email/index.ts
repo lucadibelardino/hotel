@@ -20,13 +20,23 @@ serve(async (req) => {
             throw new Error("Missing record details (email or name)");
         }
 
+        const gmailUser = Deno.env.get('GMAIL_USER');
+        const gmailPass = Deno.env.get('GMAIL_PASS');
+
+        if (!gmailUser || !gmailPass) {
+            console.error("Missing Environment Variables: GMAIL_USER or GMAIL_PASS");
+            return new Response(JSON.stringify({ error: "Configuration Error: GMAIL_USER or GMAIL_PASS missing in Supabase Secrets." }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 500,
+            });
+        }
+
         // Configure Gmail SMTP Transporter
-        // IMPORTANT: Requires 'GMAIL_USER' and 'GMAIL_PASS' (App Password) environment variables set in Supabase.
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: Deno.env.get('GMAIL_USER'),
-                pass: Deno.env.get('GMAIL_PASS'),
+                user: gmailUser,
+                pass: gmailPass,
             },
         });
 
