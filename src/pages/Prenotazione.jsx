@@ -141,6 +141,9 @@ const Prenotazione = () => {
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>Nome Completo</label>
                                     <input
                                         type="text"
+                                        id="name"
+                                        name="name"
+                                        autoComplete="name"
                                         className="luxury-input"
                                         style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                                         value={formData.name}
@@ -152,6 +155,9 @@ const Prenotazione = () => {
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>Email</label>
                                     <input
                                         type="email"
+                                        id="email"
+                                        name="email"
+                                        autoComplete="email"
                                         className="luxury-input"
                                         style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                                         value={formData.email}
@@ -163,6 +169,9 @@ const Prenotazione = () => {
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>Telefono</label>
                                     <input
                                         type="tel"
+                                        id="phone"
+                                        name="phone"
+                                        autoComplete="tel"
                                         className="luxury-input"
                                         style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                                         value={formData.phone}
