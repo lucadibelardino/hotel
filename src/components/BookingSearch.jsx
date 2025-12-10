@@ -54,50 +54,10 @@ const BookingSearch = () => {
 
             if (insertError) {
                 console.error("Supabase Insert Error:", insertError);
-                throw insertError;
-            }
-
-            console.log("Booking saved. Invoking Edge Function...");
-
-            // 2. Call Supabase Edge Function to send email
-            // Reset form
-            setStartDate(null);
-            setEndDate(null);
-            setGuests(2);
-            setName('');
-            setEmail('');
-
-        } catch (err) {
-            console.error('Full Error Object:', err);
-            alert(`Si è verificato un errore:\n${err.message || 'Errore sconosciuto'}`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="booking-search-container">
-            <form className="booking-search-bar" onSubmit={handleSearch}>
-                {/* Row 1: Dates & Guests */}
-                <div className="search-section">
-                    <div className="search-field">
-                        <label>Check-in</label>
-                        <div className="input-wrapper">
-                            <Calendar size={18} className="search-icon" />
-                            <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                selectsStart
-                                startDate={startDate}
-                                endDate={endDate}
-                                placeholderText="Arrivo"
-                                className="luxury-input"
-                                dateFormat="dd/MM/yyyy"
-                                minDate={new Date()}
-                                required
-                            />
-                        </div>
-                    </div>
+                required
+                    />
+                        </div >
+                    </div >
 
                     <div className="divider"></div>
 
@@ -137,13 +97,13 @@ const BookingSearch = () => {
                             </select>
                         </div>
                     </div>
-                </div>
+                </div >
 
-                {/* Vertical Divider for Desktop, Spacing for Mobile */}
-                <div className="section-divider"></div>
+    {/* Vertical Divider for Desktop, Spacing for Mobile */ }
+    < div className = "section-divider" ></div >
 
-                {/* Row 2: User Details */}
-                <div className="search-section">
+        {/* Row 2: User Details */ }
+        < div className = "search-section" >
                     <div className="search-field">
                         <label>Nome</label>
                         <div className="input-wrapper">
@@ -175,22 +135,22 @@ const BookingSearch = () => {
                             />
                         </div>
                     </div>
-                </div>
+                </div >
 
-                <div className="search-button-wrapper">
-                    <button type="submit" className="search-button" disabled={loading}>
-                        {loading ? (
-                            <span>Attendi...</span>
-                        ) : (
-                            <>
-                                <Search size={20} />
-                                <span>Prenota</span>
-                            </>
-                        )}
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div className="search-button-wrapper">
+        <button type="submit" className="search-button" disabled={loading}>
+            {loading ? (
+                <span>Attendi...</span>
+            ) : (
+                <>
+                    <Search size={20} />
+                    <span>Prenota</span>
+                </>
+            )}
+        </button>
+    </div>
+            </form >
+        </div >
     );
 };
 
