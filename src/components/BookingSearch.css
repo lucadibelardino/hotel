@@ -213,7 +213,7 @@ select.luxury-input {
 }
 
 .booking-modal {
-    background-color: var(--white);
+    background-color: #ffffff;
     border-radius: var(--radius-lg);
     width: 90%;
     max-width: 450px;
