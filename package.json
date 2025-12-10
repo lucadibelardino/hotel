@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
     "@supabase/supabase-js": "^2.87.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.25",
@@ -18,7 +20,8 @@
     "react": "^19.2.0",
     "react-datepicker": "^9.0.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.10.1"
+    "react-router-dom": "^7.10.1",
+    "three": "^0.181.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

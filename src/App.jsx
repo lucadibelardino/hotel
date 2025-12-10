@@ -9,6 +9,7 @@ import Prenotazione from './pages/Prenotazione'
 import ScrollToTop from './components/ScrollToTop'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
+import Demo3D from './pages/Demo3D'
 import './App.css'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/prenota" element={<Prenotazione />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/3d" element={<Demo3D />} />
       </Routes>
       <Footer />
     </div>
