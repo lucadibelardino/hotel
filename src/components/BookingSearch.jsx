@@ -54,10 +54,75 @@ const BookingSearch = () => {
 
             if (insertError) {
                 console.error("Supabase Insert Error:", insertError);
-                required
-                    />
-                        </div >
-                    </div >
+                throw insertError;
+            }
+
+            console.log("Booking saved. Invoking Edge Function...");
+
+            // 2. Call Supabase Edge Function to send email
+            // We now expect a 200 OK response with { success: true/false } structure
+            const { data: funcData, error: funcError } = await supabase.functions.invoke('send-booking-email', {
+                body: { record: bookingData }
+            });
+
+            // Handle network/invoke transport errors (real 500s or 404s that blocked execution)
+            if (funcError) {
+                console.error("Invoke Error:", funcError);
+                if (funcError.code === 'not_found' || funcError.message.includes('not found') || funcError.message.includes('404')) {
+                    alert(`ATTENZIONE: La funzione 'send-booking-email' non è stata trovata!\nHai fatto il DEPLOY su Supabase?`);
+                } else {
+                    alert(`Errore di connessione alla funzione: ${funcError.message}`);
+                }
+            }
+            // Handle logical errors returned by the function (soft errors)
+            else if (funcData && funcData.success === false) {
+                console.error("Function Logic Error:", funcData.error);
+                alert(`Prenotazione salvata, ma IMPOSSIBILE inviare email.\nMotivo: ${funcData.error}`);
+            }
+            // Success
+            else {
+                console.log("Edge Function Success:", funcData);
+                alert(`Prenotazione confermata per ${name}!\nUn'email di conferma è stata inviata a ${email}.`);
+            }
+
+            // Reset form
+            setStartDate(null);
+            setEndDate(null);
+            setGuests(2);
+            setName('');
+            setEmail('');
+
+        } catch (err) {
+            console.error('Full Error Object:', err);
+            alert(`Si è verificato un errore:\n${err.message || 'Errore sconosciuto'}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="booking-search-container">
+            <form className="booking-search-bar" onSubmit={handleSearch}>
+                {/* Row 1: Dates & Guests */}
+                <div className="search-section">
+                    <div className="search-field">
+                        <label>Check-in</label>
+                        <div className="input-wrapper">
+                            <Calendar size={18} className="search-icon" />
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                selectsStart
+                                startDate={startDate}
+                                endDate={endDate}
+                                placeholderText="Arrivo"
+                                className="luxury-input"
+                                dateFormat="dd/MM/yyyy"
+                                minDate={new Date()}
+                                required
+                            />
+                        </div>
+                    </div>
 
                     <div className="divider"></div>
 
@@ -97,13 +162,13 @@ const BookingSearch = () => {
                             </select>
                         </div>
                     </div>
-                </div >
+                </div>
 
-    {/* Vertical Divider for Desktop, Spacing for Mobile */ }
-    < div className = "section-divider" ></div >
+                {/* Vertical Divider for Desktop, Spacing for Mobile */}
+                <div className="section-divider"></div>
 
-        {/* Row 2: User Details */ }
-        < div className = "search-section" >
+                {/* Row 2: User Details */}
+                <div className="search-section">
                     <div className="search-field">
                         <label>Nome</label>
                         <div className="input-wrapper">
@@ -135,22 +200,22 @@ const BookingSearch = () => {
                             />
                         </div>
                     </div>
-                </div >
+                </div>
 
-    <div className="search-button-wrapper">
-        <button type="submit" className="search-button" disabled={loading}>
-            {loading ? (
-                <span>Attendi...</span>
-            ) : (
-                <>
-                    <Search size={20} />
-                    <span>Prenota</span>
-                </>
-            )}
-        </button>
-    </div>
-            </form >
-        </div >
+                <div className="search-button-wrapper">
+                    <button type="submit" className="search-button" disabled={loading}>
+                        {loading ? (
+                            <span>Attendi...</span>
+                        ) : (
+                            <>
+                                <Search size={20} />
+                                <span>Prenota</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 
