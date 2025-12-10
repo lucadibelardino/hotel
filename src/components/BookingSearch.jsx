@@ -201,6 +201,8 @@ const BookingSearch = () => {
                             <User size={18} className="search-icon" />
                             <input
                                 type="text"
+                                id="name"
+                                name="name"
                                 placeholder="Il tuo nome"
                                 className="luxury-input"
                                 value={name}
@@ -214,11 +216,13 @@ const BookingSearch = () => {
                     <div className="divider"></div>
 
                     <div className="search-field">
-                        <label>Email</label>
+                        <label htmlFor="email">Email</label>
                         <div className="input-wrapper">
                             <Mail size={18} className="search-icon" />
                             <input
                                 type="email"
+                                id="email"
+                                name="email"
                                 placeholder="tua@email.com"
                                 className="luxury-input"
                                 value={email}
