@@ -25,7 +25,7 @@ function App() {
         <Route path="/prenota" element={<Prenotazione />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/3d" element={<Demo3D />} />
+        <Route path="/3d/:roomId" element={<Demo3D />} />
       </Routes>
       <Footer />
     </div>

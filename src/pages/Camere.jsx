@@ -123,24 +123,48 @@ const Camere = () => {
                                         {nights > 0 && <span style={{ fontSize: '0.8rem', color: '#999' }}>€{room.basePrice}/notte</span>}
                                     </div>
 
-                                    <button
-                                        onClick={() => handleBook(room.id)}
-                                        style={{
-                                            backgroundColor: '#2563eb',
-                                            color: 'white',
-                                            border: 'none',
-                                            padding: '0.8rem 1.5rem',
-                                            borderRadius: '8px',
-                                            fontSize: '1rem',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            transition: 'background-color 0.2s'
-                                        }}
-                                        onMouseOver={e => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-                                        onMouseOut={e => e.currentTarget.style.backgroundColor = '#2563eb'}
-                                    >
-                                        Prenota Ora
-                                    </button>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <button
+                                            onClick={() => handleBook(room.id)}
+                                            style={{
+                                                backgroundColor: '#2563eb',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '0.8rem 1.5rem',
+                                                borderRadius: '8px',
+                                                fontSize: '1rem',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.2s'
+                                            }}
+                                            onMouseOver={e => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+                                            onMouseOut={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+                                        >
+                                            Prenota Ora
+                                        </button>
+                                        <button
+                                            onClick={() => navigate(`/3d/${room.id}`)}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                color: '#2563eb',
+                                                border: '1px solid #2563eb',
+                                                padding: '0.6rem 1.5rem',
+                                                borderRadius: '8px',
+                                                fontSize: '0.9rem',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseOver={e => {
+                                                e.currentTarget.style.backgroundColor = '#eff6ff';
+                                            }}
+                                            onMouseOut={e => {
+                                                e.currentTarget.style.backgroundColor = 'transparent';
+                                            }}
+                                        >
+                                            Esplora in 3D
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
