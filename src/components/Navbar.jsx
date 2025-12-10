@@ -36,7 +36,7 @@ const Navbar = () => {
                     <li><Link to="/camere">Camere</Link></li>
                     <li><Link to="/ristorante">Ristorante</Link></li>
                     <li><Link to="/servizi">Servizi</Link></li>
-                    <li><Link to="/" className="btn-book">Prenota Ora</Link></li>
+                    <li><Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn-book">Prenota Ora</Link></li>
                 </ul>
             </div>
         </nav>
