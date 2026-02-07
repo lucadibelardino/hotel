@@ -1,0 +1,79 @@
+.navbar {
+    background-color: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: var(--spacing-sm) 0;
+    transition: all 0.4s ease;
+}
+
+.navbar.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--spacing-sm);
+}
+
+.navbar-logo h1 {
+    font-size: 1.5rem;
+    color: white;
+    margin: 0;
+    transition: color 0.3s ease;
+    font-family: var(--font-family-serif);
+    letter-spacing: 1px;
+}
+
+.navbar.scrolled .navbar-logo h1 {
+    color: var(--color-primary-dark);
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.navbar-menu a {
+    font-weight: 500;
+    color: white;
+    transition: color 0.3s ease;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.navbar.scrolled .navbar-menu a {
+    color: var(--color-text-main);
+}
+
+.navbar-menu a:hover {
+    color: var(--color-accent);
+}
+
+.navbar.scrolled .navbar-menu a:hover {
+    color: var(--color-primary);
+}
+
+.btn-book {
+    background-color: var(--color-primary);
+    color: white !important;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.3s ease;
+}
+
+.btn-book:hover {
+    background-color: var(--color-primary-dark);
+}

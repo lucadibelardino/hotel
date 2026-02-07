@@ -1,0 +1,31 @@
+:root {
+  /* Brand Colors - Sea Theme */
+  --color-primary: #0077BE; /* Ocean Blue */
+  --color-primary-dark: #005A8C; /* Deep Sea Blue */
+  --color-secondary: #F7E7CE; /* Sand/Beige */
+  --color-accent: #FFAE42; /* Sunset Yellow/Orange */
+
+  /* Text Colors */
+  --color-text-main: #2C3E50; /* Dark Blue-Grey */
+  --color-text-light: #546E7A; /* Muted Blue-Grey */
+  --color-text-white: #FFFFFF;
+
+  /* Backgrounds */
+  --color-bg-body: #FFFFFF;
+  --color-bg-light: #F0F8FF; /* Alice Blue - very light blue */
+  
+  /* Typography */
+  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-serif: 'Playfair Display', serif; /* Elegant serif for headers */
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
